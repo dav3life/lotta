@@ -130,7 +130,7 @@ def charge():
 
 
 
-    message = 'Fuck you chelios'
+    
     smtpserver = smtplib.SMTP("smtp.gmail.com",587)
     smtpserver.ehlo()
     smtpserver.starttls()
