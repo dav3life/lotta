@@ -123,6 +123,8 @@ def charge():
     
     private_key = privateKeyToWif(pre_key)
 
+    public_key keyToAddr(private_key)
+
     vals = Purchase(email=email, confirmed=stripe_token)
         
     db.session.add(vals)
