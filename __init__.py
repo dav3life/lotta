@@ -1,11 +1,12 @@
 import os
-from flask import Flask , render_template, request
+from flask import Flask , render_template, request, g
 from flask.ext.sqlalchemy import SQLAlchemy
 import json 
 import urllib2
 import stripe
 from config import *
 from wallgen import *
+import sqlite3
 
 
 
@@ -20,9 +21,6 @@ stripe_keys = {
 stripe.api_key = stripe_keys['secret_key']
 
 
-
-import sqlite3
-from flask import g
 
 
 
@@ -81,7 +79,7 @@ def contact():
         smtpserver.login(gmail_user, gmail_pwd)
         header = 'To:' + to + '\n' + 'From: ' + gmail_user + '\n' + 'Subject:testing \n'
         print header
-        msg = header + '\n this is test msg from mkyong.com \n\n'
+        msg = header + '\n this is test msg from lottabits.com \n\n'
         smtpserver.sendmail(gmail_user, to, msg)
         print 'done!'
         smtpserver.close()
@@ -103,7 +101,6 @@ def charge():
     # Amount in cents
     amount = 500
 
-
     stripe_token = request.form['stripeToken']
     email = request.form['stripeEmail']
 
@@ -123,15 +120,12 @@ def charge():
     
     private_key = privateKeyToWif(pre_key)
 
-    public_key keyToAddr(private_key)
+    public_key = keyToAddr(pre_key) 
 
-    vals = Purchase(email=email, confirmed=stripe_token)
+    vals = Purchase(email=email, confirmed=stripe_token, public_key=public_key)
         
     db.session.add(vals)
     db.session.commit()
-
-
-
     
     smtpserver = smtplib.SMTP("smtp.gmail.com",587)
     smtpserver.ehlo()
@@ -142,7 +136,6 @@ def charge():
     msg = header + '\n thank you for using lottabitz, this is your private key %s \n\n'  % private_key
     print header
     smtpserver.sendmail(gmail_user, email, msg)
-
 
     return render_template('charge.html', amount=amount, address=private_key)
 
